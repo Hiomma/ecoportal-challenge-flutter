@@ -28,6 +28,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   get:
+  cached_network_image: ^3.2.0
   flutter:
     sdk: flutter
   graphql_flutter: ^5.0.0
