@@ -39,4 +39,49 @@ class ReviewsRepository implements IReviewsRepository {
       return result.data!['allMovies']['nodes'];
     }
   }
+
+  @override
+  Future<dynamic> getMovie(String id) async {
+    var client = GraphQLProvider.of(Get.context!).value;
+
+    final QueryResult result = await client.query(QueryOptions(
+      document: gql(r"""
+          query MyQuery($id: UUID!) {
+            movieById(id: $id) {
+              id
+              imgUrl
+              releaseDate
+              title
+              movieDirectorByMovieDirectorId {
+                age
+                id
+                name
+              }
+              movieReviewsByMovieId {
+                nodes {
+                  body
+                  id
+                  rating
+                  title
+                  nodeId
+                  movieId
+                  userByUserReviewerId {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+          }
+        """), variables: {'id': id},
+    ));
+
+    if (result.hasException) {
+      print(result.exception.toString());
+    }
+
+    if (result.data != null) {
+      return result.data!['movieById'];
+    }
+  }
 }
