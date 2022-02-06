@@ -28,7 +28,7 @@ class ReviewsRepository implements IReviewsRepository {
               }
             }
           }
-        """),
+        """), fetchPolicy: FetchPolicy.noCache
     ));
 
     if (result.hasException) {
@@ -73,7 +73,7 @@ class ReviewsRepository implements IReviewsRepository {
               }
             }
           }
-        """), variables: {'id': id},
+        """), variables: {'id': id}, fetchPolicy: FetchPolicy.noCache,
     ));
 
     if (result.hasException) {
@@ -82,6 +82,85 @@ class ReviewsRepository implements IReviewsRepository {
 
     if (result.data != null) {
       return result.data!['movieById'];
+    }
+  }
+
+  @override
+  Future<dynamic> addUser(String name) async {
+    var client = GraphQLProvider.of(Get.context!).value;
+
+    final QueryResult result = await client.query(QueryOptions(
+      document: gql(r"""
+      mutation MyMutation ($name: String!){
+        createUser(input: {user: {name: $name}}) {
+              user {
+                name
+                id
+              } 
+        }
+      }
+        """), variables: {'name': name},
+    ));
+
+    if (result.hasException) {
+      print(result.exception.toString());
+    }
+
+    if (result.data != null) {
+      return result.data!['createUser'];
+    }
+  }
+
+  @override
+  Future<dynamic> addReview(String title, String movie, String body, String rating, String user) async {
+    var client = GraphQLProvider.of(Get.context!).value;
+
+    final QueryResult result = await client.query(QueryOptions(
+      document: gql(r"""
+          mutation MyMutation($title: String!, $movie: UUID!, $body: String!, $rating: Int!, $user: UUID!) {
+            createMovieReview(
+              input: {movieReview: {title: $title, movieId: $movie, body: $body, rating: $rating, userReviewerId: $user}}
+            ) {
+              clientMutationId
+            }
+          }
+        """), variables: {'title': title, 'movie': movie, 'body': body, 'rating': int.parse(rating), 'user': user},
+    ));
+
+    if (result.hasException) {
+      print(result.exception.toString());
+    }
+
+    if (result.data != null) {
+      return result.data!['createMovieReview'];
+    }
+  }
+
+  @override
+  Future<dynamic> editReview(String title, String body, String rating, String id) async {
+    var client = GraphQLProvider.of(Get.context!).value;
+
+    final QueryResult result = await client.query(QueryOptions(
+      document: gql(r"""
+          mutation MyMutation($title: String!, $body: String!, $rating: Int!, $id: UUID!) {
+            updateMovieReviewById(input: {movieReviewPatch: {body: $body, title: $title, rating: $rating}, id: $id}){
+              movieReview {
+                id
+                body
+                rating
+                title
+              }
+            }
+          }
+        """), variables: {'title': title, 'body': body, 'rating': int.parse(rating), 'id': id},
+    ));
+
+    if (result.hasException) {
+      print(result.exception.toString());
+    }
+
+    if (result.data != null) {
+      return result.data!['updateMovieReviewById'];
     }
   }
 }

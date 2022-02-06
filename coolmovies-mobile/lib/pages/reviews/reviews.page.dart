@@ -44,29 +44,14 @@ class ReviewsPage extends GetView<ReviewsController> {
               child: Center(
                 child: Column(
                   children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 40),
-                      child: Image(
-                        image: AssetImage('assets/images/logo.png'),
-                        width: 56,
-                        height: 56,
-                      ),
-                    ),
+                    getLogo(),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 40),
                       margin: EdgeInsets.only(top: 40),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Container(
-                            child: Text(
-                              'New Movies',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ),
+                          getMovieText(),
                           Container(
                             margin: EdgeInsets.only(top: 40),
                             height: 340,
@@ -209,6 +194,29 @@ class ReviewsPage extends GetView<ReviewsController> {
             ),
           )
         ],
+      ),
+    );
+  }
+
+  getLogo(){
+    return Container(
+      margin: EdgeInsets.only(top: 40),
+      child: Image(
+        image: AssetImage('assets/images/logo.png'),
+        width: 56,
+        height: 56,
+      ),
+    );
+  }
+
+  getMovieText(){
+    return Container(
+      child: Text(
+        'New Movies',
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w500),
       ),
     );
   }

@@ -2,10 +2,16 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:coolmovies/controllers/review-detail.controller.dart';
+import 'package:coolmovies/widgets/review-card/review-card.widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ReviewDetailPage extends GetView<ReviewDetailController> {
+  final titleController = TextEditingController();
+  final bodyController = TextEditingController();
+  final ratingController = TextEditingController();
+  final userController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,6 +98,24 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                     ],
                   ),
                 ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 20,
+            top: 20,
+            child: GestureDetector(
+              onTap: () {
+                Get.back();
+              },
+              child: Container(
+                height: 60,
+                width: 60,
+                decoration: BoxDecoration(
+                color: Colors.black.withOpacity(.5),
+                  borderRadius: BorderRadius.all(Radius.circular(100.0)),
+                ),
+                child: Icon(Icons.arrow_left, size: 40, color: Colors.white),
               ),
             ),
           )
@@ -185,7 +209,11 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "4.5/5",
+              controller
+                      .averageRating(controller.movie.value!.reviews!)
+                      .toDouble()
+                      .toStringAsFixed(0) +
+                  " / 5",
               style: TextStyle(
                   color: Color(0xFFE50914),
                   fontSize: 36,
@@ -236,76 +264,126 @@ class ReviewDetailPage extends GetView<ReviewDetailController> {
                 ),
               ),
               label: Text('New Review'),
-              onPressed: () {},
+              onPressed: () async {
+                final isConfirmed = await openAddReview();
+
+                if (isConfirmed) {
+                  await controller.addReview(
+                      titleController.text,
+                      bodyController.text,
+                      userController.text,
+                      ratingController.text);
+                }
+
+                titleController.clear();
+                bodyController.clear();
+                userController.clear();
+                ratingController.clear();
+              },
             ),
           ),
         ),
         SizedBox(height: 20),
-        Container(
-          child: Stack(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Gabriel Sereno',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: 8),
-                    child: Row(
-                      children: [
-                        Text(
-                          '4.5',
-                          style: TextStyle(
-                            color: Color(0xFFE50914),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Icon(Icons.star, color: Color(0xFFE50914), size: 14),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Container(
-                    height: 1,
-                    width: 60,
-                    color: Colors.white,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Something that you want to tell about the movie',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-              Positioned(
-                right: 0,
-                top: 8,
-                child: Icon(Icons.edit, color: Colors.white),
-              ),
-            ],
-          ),
+        ...controller.movie.value!.reviews!.map(
+          (review) => getReviewCard(review),
         ),
-        SizedBox(height: 40),
       ],
     );
+  }
+
+  Column getReviewCard(review) {
+    return Column(children: [
+      ReviewCard(
+        title: review.title,
+        name: review.user.name,
+        rating: review.rating.toString(),
+        review: review.body,
+        onTap: () async {
+          titleController.text = review.title;
+          bodyController.text = review.body;
+          ratingController.text = review.rating.toString();
+
+          final isConfirmed = await openAddReview(isEdit: true);
+
+          if (isConfirmed) {
+            await controller.editReview(titleController.text,
+                bodyController.text, ratingController.text, review.id);
+          }
+
+          titleController.clear();
+          bodyController.clear();
+          userController.clear();
+          ratingController.clear();
+        },
+      ),
+      SizedBox(height: 40)
+    ]);
+  }
+
+  openAddReview({bool isEdit = false}) async {
+    return showDialog(
+        context: Get.context!,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: TextField(
+                style: TextStyle(fontSize: 20),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Title',
+                ),
+                controller: titleController),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  TextField(
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Review',
+                    ),
+                    controller: bodyController,
+                  ),
+                  SizedBox(height: 8),
+                  TextField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Rating',
+                    ),
+                    controller: ratingController,
+                  ),
+                  SizedBox(height: 8),
+                  !isEdit
+                      ? TextField(
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Your Name',
+                          ),
+                          controller: userController,
+                        )
+                      : Container(),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                  userController.clear();
+                  bodyController.clear();
+                  titleController.clear();
+                  ratingController.clear();
+                },
+              ),
+              TextButton(
+                child: Text("OK"),
+                onPressed: () async {
+                  Navigator.of(context).pop(true);
+                },
+              )
+            ],
+          );
+        });
   }
 }
