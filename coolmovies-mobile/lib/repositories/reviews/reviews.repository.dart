@@ -25,6 +25,20 @@ class ReviewsRepository implements IReviewsRepository {
                   name
                   nodeId
                 }
+                movieReviewsByMovieId {
+                nodes {
+                  body
+                  id
+                  rating
+                  title
+                  nodeId
+                  movieId
+                  userByUserReviewerId {
+                    id
+                    name
+                  }
+                }
+              }
               }
             }
           }

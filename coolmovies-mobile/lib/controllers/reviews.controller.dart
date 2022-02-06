@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coolmovies/models/movies/movies.model.dart';
+import 'package:coolmovies/models/reviews/reviews.model.dart';
 import 'package:coolmovies/repositories/reviews/reviews.interface.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,6 +21,20 @@ class ReviewsController extends GetxController {
     super.onInit();
 
     await getAllMovies();
+  }
+
+  averageRating(List<Reviews> reviews) {
+    var originalRating = reviews[0].rating;
+
+    var averageRating = reviews.reduce((value, e) {
+      value.rating = value.rating! + e.rating!;
+      return value;
+    }).rating! /
+        reviews.length;
+
+    reviews[0].rating = originalRating;
+
+    return averageRating;
   }
 
   getAllMovies() async {

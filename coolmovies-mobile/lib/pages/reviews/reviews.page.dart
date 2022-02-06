@@ -65,122 +65,31 @@ class ReviewsPage extends GetView<ReviewsController> {
                                   itemBuilder:
                                       (BuildContext context, int index) =>
                                           GestureDetector(
-                                            onTap: () {
-                                              Get.toNamed(
-                                                  '/reviews/detail', arguments: [controller.moviesList[index].id]);
-                                            },
-                                            child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Container(
-                                        child: Center(
+                                    onTap: () {
+                                      Get.toNamed('/reviews/detail',
+                                          arguments: [
+                                            controller.moviesList[index].id
+                                          ]);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: Container(
+                                          child: Center(
                                             child: Stack(
                                               children: [
-                                                CachedNetworkImage(
-                                                  imageBuilder:
-                                                      (context, imageProvider) =>
-                                                          Container(
-                                                    width: 260,
-                                                    decoration: BoxDecoration(
-                                                      image: DecorationImage(
-                                                          image: imageProvider,
-                                                          fit: BoxFit.cover),
-                                                    ),
-                                                  ),
-                                                  imageUrl: controller
-                                                      .moviesList[index].imgUrl!,
-                                                  placeholder: (context, url) =>
-                                                      CircularProgressIndicator(),
-                                                  errorWidget:
-                                                      (context, url, error) =>
-                                                          Icon(Icons.error),
-                                                ),
-                                                Positioned(
-                                                  top: 0,
-                                                  left: 0,
-                                                  child: Container(
-                                                    width: 260,
-                                                    height: 340,
-                                                    decoration: BoxDecoration(
-                                                      gradient: LinearGradient(
-                                                        begin:
-                                                            Alignment.topCenter,
-                                                        end: Alignment
-                                                            .bottomCenter,
-                                                        stops: [
-                                                          0,
-                                                          1,
-                                                        ],
-                                                        colors: [
-                                                          Colors.black
-                                                              .withOpacity(.2),
-                                                          Colors.black,
-                                                        ],
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              16),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Positioned(
-                                                  bottom: 16,
-                                                  child: Container(
-                                                    padding: EdgeInsets.symmetric(
-                                                        horizontal: 16,
-                                                        vertical: 8),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Container(
-                                                          width: 200,
-                                                          child: Text(
-                                                            controller
-                                                                .moviesList[index]
-                                                                .title!,
-                                                            style: TextStyle(
-                                                                color: Colors.white,
-                                                                fontSize: 20,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          margin: EdgeInsets.only(top:8),
-                                                          child: Row(
-                                                            children: [
-                                                              Text(
-                                                                '4.5',
-                                                                style: TextStyle(
-                                                                    color: Color(
-                                                                        0xFFE50914),
-                                                                    fontSize: 16,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500),
-                                                              ),
-                                                              Icon(Icons.star,
-                                                                  color: Color(
-                                                                      0xFFE50914)),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
+                                                getImage(controller, index),
+                                                getImageFilter(),
+                                                getTitle(controller, index),
                                               ],
                                             ),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                          ),
                                 ),
                               );
                             }),
@@ -198,7 +107,7 @@ class ReviewsPage extends GetView<ReviewsController> {
     );
   }
 
-  getLogo(){
+  getLogo() {
     return Container(
       margin: EdgeInsets.only(top: 40),
       child: Image(
@@ -209,14 +118,97 @@ class ReviewsPage extends GetView<ReviewsController> {
     );
   }
 
-  getMovieText(){
+  getMovieText() {
     return Container(
       child: Text(
         'New Movies',
         style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w500),
+            color: Colors.white, fontSize: 22, fontWeight: FontWeight.w500),
+      ),
+    );
+  }
+
+  getImage(ReviewsController controller, int index) {
+    return CachedNetworkImage(
+      imageBuilder: (context, imageProvider) => Container(
+        width: 260,
+        decoration: BoxDecoration(
+          image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+        ),
+      ),
+      imageUrl: controller.moviesList[index].imgUrl!,
+      placeholder: (context, url) => CircularProgressIndicator(),
+      errorWidget: (context, url, error) => Icon(Icons.error),
+    );
+  }
+
+  getImageFilter() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      child: Container(
+        width: 260,
+        height: 340,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [
+              0,
+              1,
+            ],
+            colors: [
+              Colors.black.withOpacity(.2),
+              Colors.black,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+    );
+  }
+
+  getTitle(ReviewsController controller, int index) {
+    return Positioned(
+      bottom: 16,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 200,
+              child: Text(
+                controller.moviesList[index].title!,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 8),
+              child: Row(
+                children: [
+                  Text(
+                    controller
+                        .averageRating(controller.moviesList[index].reviews!)
+                        .toDouble()
+                        .toStringAsFixed(0),
+                    style: TextStyle(
+                        color: Color(0xFFE50914),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500),
+                  ),
+                  Icon(
+                    Icons.star,
+                    color: Color(0xFFE50914),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
